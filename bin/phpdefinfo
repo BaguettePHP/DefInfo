@@ -1,0 +1,293 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * PhpDefInfo - CLI
+ *
+ * @author    USAMI Kenta <tadsan@zonu.me>
+ * @copyright 2016 USAMI Kenta
+ * @license   MPL-2.0 https://www.mozilla.org/en-US/MPL/2.0/
+ */
+
+//This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+//If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+namespace PhpDefInfo;
+
+const NAME = 'PhpDefInfo';
+const VERSION = '0.0.1-dev';
+const PROJECT = 'ξ ^ω^)ξ Baguette HQ <https://github.com/BaguettePHP>';
+const AUTHOR = 'USAMI Kenta <tadsan@zonu.me>';
+const LICENSE_URL = 'https://www.mozilla.org/media/MPL/2.0/index.815ca599c9df.txt';
+
+call_user_func(function () {
+    set_error_handler(__NAMESPACE__ . '\exception_error_handler');
+    error_reporting(-1);
+    require_once __DIR__ . '/../load.php';
+
+    $args   = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
+    $subcmd = isset($args[1]) ? $args[1] : 'help';
+
+    switch ($subcmd) {
+        case 'class':
+            _class($args);
+            exit;
+        case 'func':
+            _func($args);
+            exit;
+        case 'help':
+            _help($args);
+            exit;
+        case 'license':
+            readfile(LICENSE_URL);
+            exit;
+        case 'version':
+            _version($args);
+            echo PHP_EOL, "ヾ(〃＞＜)ﾉﾞ ＜ PHP, go for it!", PHP_EOL;
+            exit;
+        default:
+            _version($args);
+            echo PHP_EOL;
+            printf("%s is unexpected subcommand." . PHP_EOL, $subcmd);
+    }
+});
+exit(1);
+
+function _class(array $args)
+{
+    list($options, $classes) = __parseOptions($args);
+    $namespace = isset($options['namespace']) ? $options['namespace'] : '';
+    if (isset($options['include'])) {
+        foreach ($options['include'] as $file) {
+            require_once $file;
+        }
+    }
+
+    $result = array();
+    foreach ($classes as $func) {
+        $result[$func] = getClass($func, $namespace);
+    }
+
+    return __output($result, $options);
+}
+
+function _func(array $args)
+{
+    list($options, $funcs) = __parseOptions($args);
+    $namespace = isset($options['namespace']) ? $options['namespace'] : '';
+    if (isset($options['include'])) {
+        require_once $options['include'];
+    }
+
+    $result = array();
+    foreach ($funcs as $func) {
+        $result[$func] = getProcedureDwim($func, $namespace);
+    }
+
+    return __output($result, $options);
+}
+
+function _version(array $args)
+{
+    printf("ξ %s %s" . PHP_EOL, NAME, VERSION);
+    printf("Copyright (c) 2015 %s" . PHP_EOL, AUTHOR);
+    printf("Copyright (c) 2015 %s" . PHP_EOL, PROJECT);
+}
+
+function _help(array $args)
+{
+    static $help = [
+        'help'    => 'Display help',
+        'license' => 'Display license (require network)',
+        'class'   => 'Show class information',
+        'method'  => 'Show method information',
+        'version' => 'Display version',
+    ];
+
+    list($options, $rest_args) = __parseOptions($args);
+    _version($rest_args);
+    echo PHP_EOL;
+    printf("usage: %s <command> [<args>]" . PHP_EOL, $args[0]);
+    echo 'Available commands:', PHP_EOL, PHP_EOL;
+    foreach ($help as $cmd => $desc) {
+        printf("%s\t\t%s". PHP_EOL, $cmd, $desc);
+    }
+    echo PHP_EOL;
+}
+
+/**
+ * @link http://php.net/manual/ja/class.errorexception.php
+ */
+function exception_error_handler($severity, $message, $file, $line)
+{
+    if (!(error_reporting() & $severity)) {
+        return;
+    }
+    throw new \ErrorException($message, 0, $severity, $file, $line);
+}
+
+/**
+ * @param  string[] $args
+ * @return array (array $option, string[] $rest)
+ */
+function __parseOptions(array $args)
+{
+    static $opttable = [
+        'include'   => ['type' => 'string[]'],
+        'namespace' => ['type' => 'string'],
+        'verbose'   => ['type' => 'bool'],
+        'format'    => ['type' => 'string'],
+    ];
+    static $shortopts = [
+        'v' => 'verbose',
+    ];
+
+    $_self   = array_shift($args);
+    $_subcmd = array_shift($args);
+
+    $force_rest = false;
+    $options = array();
+    $rest_args = array();
+    $lastname = null;
+
+    foreach ($args as $a) {
+        if ($force_rest) {
+            $rest_args[] = $a;
+        } elseif ($a === '--') {
+            $force_rest = true;
+            $lastname = null;
+            continue;
+        }
+
+        if (strncmp($a, '--', 2) === 0) {
+            $a = substr($a, 2);
+            if (strpos($a, '=', 2) !== false) {
+                if (isset($lastname)) {
+                    __abort("--{$lastname}=value is no given");
+                }
+
+                list($name, $value) = explode('=', $a, 2);
+                if (!isset($opttable[$name])) {
+                    __abort("--{$name} is unexpected option");
+                }
+                $options = __setOption($name, $value, $opttable[$name]['type'], $options);
+            } else {
+                $name = $a;
+                if (!isset($opttable[$name])) {
+                    __abort("--{$name} is unexpected option");
+                }
+                if ($opttable[$name]['type'] === 'bool') {
+                    $options[$name] = true;
+                } else {
+                    $lastname = $name;
+                }
+            }
+        } elseif (isset($lastname)) {
+            $value    = $a;
+            $name     = $lastname;
+            $lastname = null;
+            $options  = __setOption($name, $value, $opttable[$name]['type'], $options);
+        } else {
+            $force_rest  = true;
+            $lastname    = null;
+            $rest_args[] = $a;
+        }
+    }
+
+    return array($options, $rest_args);
+}
+
+/**
+ * @param  string $name
+ * @param  mixed  $value
+ * @param  string $type
+ * @param  array  $options
+ * @return array
+ */
+function __setOption($name, $value, $type, array $options)
+{
+    switch ($type) {
+        case 'bool':
+            if ($value === 'true') {
+                $options[$name] = true;
+            } elseif ($value === 'false') {
+                $options[$name] = false;
+            } else {
+                __abort("--{$name}={$value} is unexpected value");
+            }
+            break;
+        case 'string':
+            $options[$name] = $value;
+            break;
+        case 'string[]':
+            if (!isset($options[$name])) {
+                $options[$name] = array();
+            }
+            $options[$name][] = $value;
+            break;
+        default:
+            throw new \LogicException;
+    }
+
+    return $options;
+}
+
+/**
+ * @param  mixed $value
+ * @param  array $options
+ * @return true
+ */
+function __output($value, array $options)
+{
+    $format = isset($options['format']) ? $options['format'] : 'json';
+
+    switch ($format) {
+        case 'json':
+            $content_type = 'application/json';
+            $body = json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL;
+            break;
+        case 'json_pretty':
+            $content_type = 'application/json';
+            $body = json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . PHP_EOL;
+            break;
+        case 'var_export':
+            $content_type = 'text/plain';
+            $body = var_export($value, true) . PHP_EOL;
+            break;
+        default:
+            throw new \RuntimeException("format={$format} is unexpected format.");
+    }
+
+    if (!headers_sent()) {
+        header("Content-Type: {$content_type}", true);
+        header(sprintf("Content-Length: %s", strlen($body)), true);
+    }
+    echo $body;
+
+    return true;
+}
+
+/**
+ * @param string $message
+ * @param string $reason_phrase
+ */
+function __abort($message, $reason = 'BAD_REQUEST')
+{
+    static $reasons = [
+        'BAD_REQUEST'           => 400,
+        'INTERNAL_SERVER_ERROR' => 500,
+    ];
+
+    if (!headers_sent()) {
+        header("Content-Type: text/plain", true, $reasons[$reason]);
+        header(sprintf("Content-Length: %s", strlen($message) + 1), true);
+    }
+    if (php_sapi_name() === 'cli') {
+        $file = STDERR;
+    } else {
+        $file = STDIN;
+    }
+
+    fwrite($file, $message . "\n");
+    exit(1);
+}

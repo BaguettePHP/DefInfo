@@ -1,0 +1,31 @@
+{
+    "name": "zonuexe/definfo",
+    "description": "PHP Dynamic definition viewer",
+    "license": "MPL-2.0",
+    "authors": [
+        {
+            "name": "USAMI Kenta",
+            "email": "tadsan@zonu.me"
+        }
+    ],
+    "keywords": [
+        "PHP",
+        "reflection"
+    ],
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^4.8"
+    },
+    "autoload": {
+        "files": ["load.php"]
+    },
+    "autoload-dev": {
+        "files": ["tests/bootstrap.php"]
+    },
+    "bin": [
+        "phpdefinfo"
+    ],
+    "scripts": {
+        "test": "phpunit"
+    }
+}
