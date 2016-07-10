@@ -17,7 +17,7 @@ final class TokenizeTest extends \PHPUnit_Framework_TestCase
         return array(
             array(
                 'expected' => array(
-                    'Hoge' => '',
+                    'Hoge' => 'Hoge',
                 ),
                 '<?php
 
@@ -26,28 +26,31 @@ use Hoge;
             ),
             array(
                 'expected' => array(
-                    'Hoge' => '',
-                    'FizzBuzz' => 'fb',
+                    'Hoge' => 'Hoge',
+                    'Fuga' => 'Hoge\Fuga',
+                    'fb' => 'Fizz\Buzz',
                 ),
                 '<?php
 
 use Hoge;
-use FizzBuzz as fb;
+use Hoge\Fuga;
+use Fizz\Buzz as fb;
 ',
             ),
             array(
                 'expected' => array(
-                    'Hoge' => '',
-                    'FizzBuzz' => 'fb',
+                    'Hoge' => 'Hoge',
+                    'Fuga' => 'Hoge\Fuga',
+                    'fb' => 'Fizz\Buzz',
                 ),
                 '<?php
 
-use Hoge, FizzBuzz as fb;
+use Hoge, Hoge\Fuga, Fizz\Buzz as fb;
 ',
             ),
             array(
                 'expected' => array(
-                    'Hoge' => '',
+                    'Hoge' => 'Hoge',
                 ),
                 '<?php
 

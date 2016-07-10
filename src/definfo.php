@@ -377,8 +377,8 @@ function get_use_clauses($code)
     // 1: in use class
     // 2: in as class
     $state = 0;
-    $current_ns = '';
-    $current_as = '';
+    $namespace = '';
+    $alias = null;
 
     // TODO: support PHP 7 style use
     //     use Hoge\{Fuga, Piyo as py};
@@ -392,18 +392,27 @@ function get_use_clauses($code)
         }
 
         if ($t === ';' || $t === ',') {
-            if ($current_ns !== '') {
-                $use_table[$current_ns] = $current_as;
+            if ($namespace !== '') {
+                // trim left \ (inessential)
+                if (strncmp('\\', $namespace, 1) === 0) {
+                    $namespace = substr($namespace, 1);
+                }
+
+                if (!isset($alias)) {
+                    preg_match('@(?:\A|\\\\)([^\\\\]+)\z@', $namespace, $m);
+                    $alias = $m[1];
+                }
+                $use_table[$alias] = $namespace;
             }
             $state = ($t === ',') ? 1 : 0;
-            $current_ns = '';
-            $current_as = '';
+            $namespace = '';
+            $alias = null;
         } elseif (is_array($t)) {
             if (($t[0] === T_STRING) || ($t[0] === T_NS_SEPARATOR)) {
                 if ($state === 1) {
-                    $current_ns .= $t[1];
+                    $namespace .= $t[1];
                 } elseif ($state === 2) {
-                    $current_as .= $t[1];
+                    $alias .= $t[1];
                 } else {
                     throw new \LogicException;
                 }
