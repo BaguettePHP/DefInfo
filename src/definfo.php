@@ -426,3 +426,72 @@ function get_use_clauses($code)
 
     return $use_table;
 }
+
+class ClassNameResolver
+{
+    private static $INTERNAL_TYPES = array(
+        'array'    => 'array',
+        'bool'     => 'bool',
+        'callable' => 'callable',
+        'false'    => 'false',
+        'float'    => 'float',
+        'int'      => 'int',
+        'mixed'    => 'mixed',
+        'null'     => 'null',
+        'object'   => 'object',
+        'resource' => 'resource',
+        'self'     => 'self',
+        'static'   => 'static',
+        'string'   => 'string',
+        'true'     => 'true',
+        'void'     => 'void',
+        '$this'    => '$this',
+
+        'boolean' => 'bool',
+        'double'  => 'float',
+        'integer' => 'int',
+        'real'    => 'float',
+    );
+
+    /** @var array */
+    private $file_table = [];
+
+    /** @var array */
+    private $namespaces = [];
+
+    /**
+     * @param string $filepath
+     * @param array  $use_table
+     */
+    public function addFile($filepath, $namespace, array $use_table)
+    {
+        $this->file_table[$filepath] = $use_table;
+        $this->namespaces[$filepath] = $namespace;
+    }
+
+    /**
+     * @param  string $filepath
+     * @param  string $klass_name
+     * @return string
+     */
+    public function resolve($filepath, $klass_name)
+    {
+        if (strncmp('\\', $klass_name, 1) === 0) {
+            return substr($klass_name, 1);
+        }
+
+        if (isset(self::$INTERNAL_TYPES[$klass_name])) {
+            return self::$INTERNAL_TYPES[$klass_name];
+        }
+
+        if (isset($this->file_table[$filepath], $this->file_table[$filepath][$klass_name])) {
+            return $this->file_table[$filepath][$klass_name];
+        }
+
+        if (isset($this->namespaces[$filepath])) {
+            return $this->namespaces[$filepath] . '\\' . $klass_name;
+        }
+
+        return $klass_name;
+    }
+}
