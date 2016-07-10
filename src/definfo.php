@@ -365,3 +365,55 @@ function _getTypeName($value)
             return get_class($value);
     }
 }
+
+/**
+ * @param string $code
+ */
+function get_use_clauses($code)
+{
+    $use_table = array();
+
+    // 0: outside of use
+    // 1: in use class
+    // 2: in as class
+    $state = 0;
+    $current_ns = '';
+    $current_as = '';
+
+    // TODO: support PHP 7 style use
+    //     use Hoge\{Fuga, Piyo as py};
+
+    foreach (token_get_all($code) as $t) {
+        if ($state === 0) {
+            if (is_array($t) && ($t[0] === T_USE)) {
+                $state = 1;
+            }
+            continue;
+        }
+
+        if ($t === ';' || $t === ',') {
+            if ($current_ns !== '') {
+                $use_table[$current_ns] = $current_as;
+            }
+            $state = ($t === ',') ? 1 : 0;
+            $current_ns = '';
+            $current_as = '';
+        } elseif (is_array($t)) {
+            if (($t[0] === T_STRING) || ($t[0] === T_NS_SEPARATOR)) {
+                if ($state === 1) {
+                    $current_ns .= $t[1];
+                } elseif ($state === 2) {
+                    $current_as .= $t[1];
+                } else {
+                    throw new \LogicException;
+                }
+            } elseif (($t[0] === T_AS)) {
+                $state = 2;
+            } elseif (($t[0] === T_FUNCTION)  || ($t[0] === T_CONST)) {
+                $state = 0;
+            }
+        }
+    }
+
+    return $use_table;
+}
