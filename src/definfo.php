@@ -100,6 +100,41 @@ function getConstantInfo($value, $name)
 }
 
 /**
+ * @param  array $docinfo DocComment
+ * @return array ReturnInfo
+ */
+function getVarInfoByDocInfo(array $docinfo)
+{
+    //static $pattern = "/^(\\?[A-Za-z][A-za-z0-9_\\|]*)[\s]+(.+)/m";
+
+    $type = '';
+    $name = '';
+    $desc = '';
+
+    foreach ($docinfo['tags'] as $i => $tag) {
+        if ($tag['name'] === 'return') {
+            if (strpos($tag['content'], ' ') !== false) {
+                list($type, $desc) = explode(' ', $tag['content'], 2);
+                if (preg_match('/(\$[^\s$]+)\s*(.*)/', $desc, $matches)) {
+                    $name = $matches[1];
+                    $desc = $matches[2];
+                }
+            } else {
+                $type = $tag['content'];
+            }
+            break;
+        }
+    }
+
+    return array(
+        'type' => trim($type),
+        'name' => $name,
+        'desc' => trim($desc),
+    );
+}
+
+
+/**
  * @param  string   $name
  * @param  string   $namespace
  * @param  string[] $use
