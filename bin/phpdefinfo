@@ -41,6 +41,9 @@ call_user_func(function () {
         case 'license':
             readfile(LICENSE_URL);
             exit;
+        case 'teto':
+            _teto($args);
+            exit;
         case 'version':
             _version($args);
             echo PHP_EOL, "ヾ(〃＞＜)ﾉﾞ ＜ PHP, go for it!", PHP_EOL;
@@ -113,6 +116,11 @@ function _help(array $args)
         printf("%s\t\t%s". PHP_EOL, $cmd, $desc);
     }
     echo PHP_EOL;
+}
+
+function _teto(array $args)
+{
+    echo TETO, PHP_EOL;
 }
 
 /**

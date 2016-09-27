@@ -530,3 +530,17 @@ class ClassNameResolver
         return $klass_name;
     }
 }
+
+/** @see https://www.youtube.com/watch?v=qucz-rYnnMc Uso no Utahime — A Fake DIVA */
+const TETO = <<<'EndOfTeto'
+ 　　　　　 　r /
+ 　 ＿＿ , --ヽ!-- .､＿
+ 　! 　｀/::::;::::ヽ l
+ 　!二二!::／}::::丿ハﾆ|
+ 　!ﾆニ.|:／　ﾉ／ }::::}ｺ
+ 　L二lイ　　0´　0 ,':ﾉｺ
+ 　lヽﾉ/ﾍ､ ''　▽_ノイ ソ
+  　ソ´ ／}｀ｽ /￣￣￣￣/
+ 　　　.(_:;つ/  0401 /　ｶﾀｶﾀ
+  ￣￣￣￣￣＼/＿＿＿＿/
+EndOfTeto;
