@@ -112,7 +112,7 @@ function getVarInfoByDocInfo(array $docinfo)
     $desc = '';
 
     foreach ($docinfo['tags'] as $i => $tag) {
-        if ($tag['name'] === 'return') {
+        if ($tag['name'] === 'var') {
             if (strpos($tag['content'], ' ') !== false) {
                 list($type, $desc) = explode(' ', $tag['content'], 2);
                 if (preg_match('/(\$[^\s$]+)\s*(.*)/', $desc, $matches)) {

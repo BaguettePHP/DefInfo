@@ -23,7 +23,7 @@ final class GetVarInfoTest extends \PHPUnit_Framework_TestCase
                 ),
                 'input' => array(
                     'tags' => array(
-                        array('name' => 'return', 'content' => '')
+                        array('name' => 'var', 'content' => '')
                     )
                 ),
             ),
@@ -35,7 +35,7 @@ final class GetVarInfoTest extends \PHPUnit_Framework_TestCase
                 ),
                 'input' => array(
                     'tags' => array(
-                        array('name' => 'return', 'content' => 'string[]')
+                        array('name' => 'var', 'content' => 'string[]')
                     )
                 ),
             ),
@@ -47,7 +47,7 @@ final class GetVarInfoTest extends \PHPUnit_Framework_TestCase
                 ),
                 'input' => array(
                     'tags' => array(
-                        array('name' => 'return', 'content' => 'string[]|false')
+                        array('name' => 'var', 'content' => 'string[]|false')
                     )
                 ),
             ),
@@ -59,7 +59,7 @@ final class GetVarInfoTest extends \PHPUnit_Framework_TestCase
                 ),
                 'input' => array(
                     'tags' => array(
-                        array('name' => 'return', 'content' => 'string[] Description')
+                        array('name' => 'var', 'content' => 'string[] Description')
                     )
                 ),
             ),
@@ -71,7 +71,7 @@ final class GetVarInfoTest extends \PHPUnit_Framework_TestCase
                 ),
                 'input' => array(
                     'tags' => array(
-                        array('name' => 'return', 'content' => 'string[] $var Description')
+                        array('name' => 'var', 'content' => 'string[] $var Description')
                     )
                 ),
             ),
