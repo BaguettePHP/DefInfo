@@ -90,8 +90,8 @@ function _func(array $args)
 function _version(array $args)
 {
     printf("ξ %s %s" . PHP_EOL, NAME, VERSION);
-    printf("Copyright (c) 2015 %s" . PHP_EOL, AUTHOR);
-    printf("Copyright (c) 2015 %s" . PHP_EOL, PROJECT);
+    printf("Copyright (c) 2016 %s" . PHP_EOL, AUTHOR);
+    printf("Copyright (c) 2016 %s" . PHP_EOL, PROJECT);
 }
 
 function _help(array $args)
