@@ -285,7 +285,7 @@ function __abort($message, $reason = 'BAD_REQUEST')
     if (php_sapi_name() === 'cli') {
         $file = STDERR;
     } else {
-        $file = STDIN;
+        $file = STDOUT;
     }
 
     fwrite($file, $message . "\n");
