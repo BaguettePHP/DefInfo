@@ -27,6 +27,11 @@ function getClass($name, $namespace, array $use = [])
     foreach ($ref->getMethods() as $method) {
         $methods[$method->getName()] = getFunctionAbstractInfo($method);
     }
+    $properties = [];
+
+    foreach ($ref->getProperties() as $prop) {
+        $properties[$prop->getName()] = getPropertyInfo($prop);
+    }
 
     $info = [
         'file' => null,
@@ -34,6 +39,7 @@ function getClass($name, $namespace, array $use = [])
         'attribute' => getClassAttribute($ref),
         'parentClass' => $ref->getParentClass() ?: '',
         'methods' => $methods,
+        'properties' => $properties,
         'constants' => mapkv('PhpDefInfo\getConstantInfo', $ref->getConstants()),
     ];
 
@@ -96,6 +102,22 @@ function getConstantInfo($value, $name)
             'type' => _getTypeName($value),
         ],
         'value' => $value,
+    ];
+}
+
+/**
+ * @param  \ReflectionProperty $ref
+ * @return array
+ */
+function getPropertyInfo(\ReflectionProperty $ref)
+{
+    $doc = $ref->getDocComment();
+    $info = parseDocComment(trimDocComment($doc));
+    $var = getVarInfoByDocInfo($info);
+
+    return [
+        'desc' => ($info['desc'] !== '') ? $info['desc'] : $var['desc'],
+        'type' => $var['type'],
     ];
 }
 
