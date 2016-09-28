@@ -279,6 +279,10 @@ function __output($value, array $options)
         case 'json':
             $content_type = 'application/json';
             $body = json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL;
+            if (JSON_ERROR_NONE !== json_last_error()) {
+                throw new \RuntimeException('json_decode error: ' . json_last_error_msg());
+            }
+
             break;
         case 'json_pretty':
             $content_type = 'application/json';
