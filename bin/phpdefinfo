@@ -131,7 +131,7 @@ function _help(array $args)
         'help'    => 'Display help',
         'license' => 'Display license (require network)',
         'class'   => 'Show class information',
-        'method'  => 'Show method information',
+        'func'    => 'Show function/method information',
         'version' => 'Display version',
     ];
 
