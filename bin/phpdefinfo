@@ -32,6 +32,9 @@ call_user_func(function () {
         case 'class':
             _class($args);
             exit;
+        case 'constants':
+            _constants($args);
+            exit;
         case 'func':
             _func($args);
             exit;
@@ -77,6 +80,26 @@ function _class(array $args)
     }
 
     return __output($result, $options);
+}
+
+
+function _constants(array $args)
+{
+    list($options, $classes) = __parseOptions($args);
+
+    $all_constants = get_defined_constants(true);
+    $constant_names = [];
+    foreach ($all_constants as $category => $constants) {
+        $constant_names[$category] = array_keys($constants);
+    }
+    foreach ($constant_names['user'] as $i => $name) {
+        if (strpos($name, __NAMESPACE__) === 0) {
+            unset($constant_names['user'][$i]);
+        }
+    }
+    $constant_names['user'] = array_values($constant_names['user']);
+
+    return __output($constant_names, $options);
 }
 
 function _func(array $args)
