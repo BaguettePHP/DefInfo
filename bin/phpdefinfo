@@ -26,7 +26,7 @@ call_user_func(function () {
     require_once __DIR__ . '/../load.php';
 
     $args   = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
-    $subcmd = isset($args[1]) ? $args[1] : 'help';
+    $subcmd = isset($args[1]) ? $args[1] : '';
 
     switch ($subcmd) {
         case 'class':
@@ -34,6 +34,11 @@ call_user_func(function () {
             exit;
         case 'func':
             _func($args);
+            exit;
+        case '':
+            _version($args);
+            echo PHP_EOL;
+            _help($args);
             exit;
         case 'help':
             _help($args);
@@ -108,14 +113,12 @@ function _help(array $args)
     ];
 
     list($options, $rest_args) = __parseOptions($args);
-    _version($rest_args);
+    printf("Usage: %s <command> [<args>]" . PHP_EOL, $args[0]);
     echo PHP_EOL;
-    printf("usage: %s <command> [<args>]" . PHP_EOL, $args[0]);
-    echo 'Available commands:', PHP_EOL, PHP_EOL;
+    echo 'Available commands:', PHP_EOL;
     foreach ($help as $cmd => $desc) {
-        printf("%s\t\t%s". PHP_EOL, $cmd, $desc);
+        printf("  %-6s\t\t%s". PHP_EOL, $cmd, $desc);
     }
-    echo PHP_EOL;
 }
 
 function _teto(array $args)
