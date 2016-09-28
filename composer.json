@@ -22,6 +22,7 @@
         "files": ["load.php"]
     },
     "autoload-dev": {
+        "classmap": ["tests/sample/"],
         "files": ["tests/bootstrap.php"]
     },
     "bin": [
