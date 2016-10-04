@@ -23,7 +23,9 @@ const LICENSE_URL = 'https://www.mozilla.org/media/MPL/2.0/index.815ca599c9df.tx
 call_user_func(function () {
     set_error_handler(__NAMESPACE__ . '\exception_error_handler');
     error_reporting(-1);
-    require_once __DIR__ . '/../load.php';
+    if (!function_exists('PhpDefInfo\getClass')) {
+        require_once __DIR__ . '/../src/definfo.php';
+    }
 
     $args   = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
     $subcmd = isset($args[1]) ? $args[1] : '';
