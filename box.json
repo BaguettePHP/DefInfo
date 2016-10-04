@@ -1,0 +1,20 @@
+{
+    "alias": "phpdefinfo.phar",
+    "chmod": "0755",
+    "compactors": [
+        "Herrera\\Box\\Compactor\\Json",
+        "Herrera\\Box\\Compactor\\Php"
+    ],
+    "compression": "GZ",
+    "output": "build/phpdefinfo.phar",
+    "directories": ["src/"],
+    "extract": true,
+    "finder": [
+        {
+            "name": "*.php",
+            "in": ["src"]
+        }
+    ],
+    "main": "bin/phpdefinfo",
+    "stub": true
+}

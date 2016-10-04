@@ -1,7 +1,9 @@
+/build/phpdefinfo.phar
 /build/logs
 /build/phpdox
 /build/phploc
 /build/report
+/box.phar
 /composer.lock
 /phpunit.xml
 /vendor/*
